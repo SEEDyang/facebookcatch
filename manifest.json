@@ -1,0 +1,50 @@
+{
+  "manifest_version": 3,
+  "name": "Facebook Marketplace Motorcycle Monitor",
+  "version": "0.1.0",
+  "description": "Scans already-open Facebook Marketplace tabs for matching motorcycle listings and alerts you without automating messaging.",
+  "permissions": [
+    "storage",
+    "notifications",
+    "alarms",
+    "activeTab",
+    "scripting",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://www.facebook.com/*",
+    "https://facebook.com/*",
+    "https://discord.com/*",
+    "https://discordapp.com/*",
+    "https://api.telegram.org/*",
+    "https://maker.ifttt.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "128": "icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Marketplace Motorcycle Monitor",
+    "default_icon": {
+      "128": "icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.facebook.com/marketplace/*",
+        "https://facebook.com/marketplace/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "styles.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

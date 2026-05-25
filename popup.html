@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Marketplace 监控器</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="mmm-popup">
+    <main class="mmm-popup-shell">
+      <section class="mmm-popup-header">
+        <p class="mmm-eyebrow">Chrome 扩展 MVP</p>
+        <h1>Marketplace 摩托车监控器</h1>
+        <p class="mmm-subtitle">
+          只扫描你已经打开的 Marketplace 标签页里当前已加载的 DOM。
+        </p>
+      </section>
+
+      <section class="mmm-card">
+        <label class="mmm-switch">
+          <input id="enabled" type="checkbox" />
+          <span>启用扩展</span>
+        </label>
+
+        <label class="mmm-field">
+          <span>关键词</span>
+          <textarea
+            id="keywords"
+            rows="4"
+            placeholder="CBR600RR, CBR 600RR, ZX6R, ZX-6R, 636"
+          ></textarea>
+          <small>用逗号分隔。匹配时会尽量忽略空格和连字符差异。</small>
+        </label>
+
+        <label class="mmm-field">
+          <span>排除词</span>
+          <textarea
+            id="excludeKeywords"
+            rows="4"
+            placeholder="wheel, headers, exhaust, fairing, parts"
+          ></textarea>
+          <small>可选。如果卡片文字里出现这些词，就不触发匹配。</small>
+        </label>
+
+        <div class="mmm-grid">
+          <label class="mmm-field">
+            <span>扫描间隔</span>
+            <select id="scanIntervalSec">
+              <option value="30">30 秒</option>
+              <option value="45">45 秒</option>
+              <option value="60">60 秒</option>
+              <option value="120">120 秒</option>
+            </select>
+          </label>
+
+          <label class="mmm-field">
+            <span>去重时间窗</span>
+            <select id="dedupeHours">
+              <option value="6">6 小时</option>
+              <option value="12">12 小时</option>
+              <option value="24">24 小时</option>
+              <option value="48">48 小时</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="mmm-grid">
+          <label class="mmm-field">
+            <span>最低价格</span>
+            <input id="minPrice" type="number" min="0" step="50" placeholder="例如 4000" />
+          </label>
+
+          <label class="mmm-field">
+            <span>最高价格</span>
+            <input id="maxPrice" type="number" min="0" step="50" placeholder="例如 9000" />
+          </label>
+        </div>
+
+        <div class="mmm-grid">
+          <label class="mmm-field">
+            <span>最早年份</span>
+            <input id="minYear" type="number" min="1980" max="2100" step="1" placeholder="例如 2009" />
+          </label>
+
+          <label class="mmm-field">
+            <span>最晚年份</span>
+            <input id="maxYear" type="number" min="1980" max="2100" step="1" placeholder="例如 2020" />
+          </label>
+        </div>
+
+        <small>如果价格或年份缺失，会被标记为“可能匹配”，不会直接当成命中。</small>
+      </section>
+
+      <section class="mmm-card">
+        <h2>提醒</h2>
+
+        <label class="mmm-switch">
+          <input id="soundEnabled" type="checkbox" />
+          <span>播放页面内提示音</span>
+        </label>
+
+        <label class="mmm-switch">
+          <input id="desktopNotificationsEnabled" type="checkbox" />
+          <span>显示 Chrome 桌面通知</span>
+        </label>
+
+        <label class="mmm-switch">
+          <input id="autoScrollToMatch" type="checkbox" />
+          <span>发现新匹配后自动滚动到该 listing</span>
+        </label>
+
+        <label class="mmm-field">
+          <span>复制消息模板</span>
+          <textarea
+            id="copyMessageTemplate"
+            rows="3"
+            placeholder="你好，请问这台 {{title}} 还在吗？我有兴趣。"
+          ></textarea>
+          <small>可用变量：{{title}}、{{price}}、{{location}}、{{url}}、{{matchedKeywords}}</small>
+        </label>
+      </section>
+
+      <section class="mmm-card">
+        <h2>可选自动刷新</h2>
+
+        <label class="mmm-switch">
+          <input id="autoRefreshEnabled" type="checkbox" />
+          <span>定时刷新 Marketplace 标签页</span>
+        </label>
+
+        <div class="mmm-grid">
+          <label class="mmm-field">
+            <span>刷新间隔</span>
+            <select id="autoRefreshMinutes">
+              <option value="5">5 分钟</option>
+              <option value="7">7 分钟</option>
+              <option value="10">10 分钟</option>
+            </select>
+          </label>
+
+          <label class="mmm-field">
+            <span>随机抖动</span>
+            <select id="autoRefreshJitterSeconds">
+              <option value="0">0 秒</option>
+              <option value="15">15 秒</option>
+              <option value="30">30 秒</option>
+              <option value="45">45 秒</option>
+              <option value="60">60 秒</option>
+            </select>
+          </label>
+        </div>
+
+        <small>默认关闭。它和 DOM 扫描是分开的。</small>
+      </section>
+
+      <section class="mmm-card">
+        <h2>外部推送</h2>
+
+        <label class="mmm-field">
+          <span>Discord Webhook URL</span>
+          <input id="discordWebhookUrl" type="url" placeholder="https://discord.com/api/webhooks/..." />
+        </label>
+
+        <div class="mmm-grid">
+          <label class="mmm-field">
+            <span>Telegram 机器人 Token</span>
+            <input id="telegramBotToken" type="password" placeholder="123456:ABC..." />
+          </label>
+
+          <label class="mmm-field">
+            <span>Telegram Chat ID</span>
+            <input id="telegramChatId" type="text" placeholder="-1001234567890" />
+          </label>
+        </div>
+
+        <div class="mmm-grid">
+          <label class="mmm-field">
+            <span>IFTTT 事件名</span>
+            <input id="iftttEventName" type="text" placeholder="fb_marketplace_match" />
+          </label>
+
+          <label class="mmm-field">
+            <span>IFTTT Webhook Key</span>
+            <input id="iftttKey" type="password" placeholder="your-ifttt-key" />
+          </label>
+        </div>
+      </section>
+
+      <section class="mmm-card">
+        <h2>状态</h2>
+        <dl class="mmm-status-list">
+          <div>
+            <dt>上次扫描</dt>
+            <dd id="lastScanAt">从未</dd>
+          </div>
+          <div>
+            <dt>上次扫描标签页</dt>
+            <dd id="lastScanPage">还没有扫描</dd>
+          </div>
+          <div>
+            <dt>扫描 listings</dt>
+            <dd id="lastScanListingsSeen">0</dd>
+          </div>
+          <div>
+            <dt>强匹配</dt>
+            <dd id="lastScanMatchesFound">0</dd>
+          </div>
+          <div>
+            <dt>可能匹配</dt>
+            <dd id="lastScanPossibleMatches">0</dd>
+          </div>
+          <div>
+            <dt>已忽略</dt>
+            <dd id="lastScanIgnoredListings">0</dd>
+          </div>
+          <div>
+            <dt>已发送通知</dt>
+            <dd id="notificationsSent">0</dd>
+          </div>
+          <div>
+            <dt>Discord 成功</dt>
+            <dd id="discordAlertsSent">0</dd>
+          </div>
+          <div>
+            <dt>Discord 失败</dt>
+            <dd id="discordAlertsFailed">0</dd>
+          </div>
+          <div>
+            <dt>最近一次提醒</dt>
+            <dd id="lastAlertedTitle">暂无</dd>
+          </div>
+          <div>
+            <dt>Discord 状态</dt>
+            <dd id="lastDiscordStatus">暂无</dd>
+          </div>
+          <div>
+            <dt>Discord 错误</dt>
+            <dd id="lastDiscordError">暂无</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="mmm-actions">
+        <button id="saveButton" class="mmm-primary-button" type="button">保存设置</button>
+        <button id="scanNowButton" class="mmm-secondary-button" type="button">立即扫描已打开标签页</button>
+        <button id="testNotificationButton" class="mmm-secondary-button" type="button">测试通知</button>
+        <button id="clearAlertHistoryButton" class="mmm-secondary-button" type="button">清空已提醒历史</button>
+      </section>
+
+      <p id="statusMessage" class="mmm-status-message" aria-live="polite"></p>
+    </main>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
